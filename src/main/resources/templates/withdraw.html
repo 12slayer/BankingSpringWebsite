@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        function ConfirmDelete()
+        {
+            var x = confirm("Are you sure you want to delete?");
+            if (x)
+                return true;
+            else
+                return false;
+        }
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">BankingApplication</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    bankingApplication
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/">home</a>
+                    <a class="dropdown-item" href="/create">Create</a>
+                    <a class="dropdown-item" href="/deposite">Deposit</a>
+                    <a class="dropdown-item" href="/withdraw">Withdarw</a>
+                    <a class="dropdown-item" href="/transfer">Transfer</a>
+
+                    <a class="dropdown-item" href="/closeAccount">CloseAccount</a>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<main role="main" class="flex-shrink-0" style="padding-top: 3%;">
+    <div class="container">
+
+        <!-- Form for Searching User -->
+        <div class="row">
+            <div class="col-lg-8">
+                <form>
+                    <div class="form-group row">
+                        <label for="account-number" class="col-sm-2 col-form-label">Account Number</label>
+                        <div class="col-sm-10 text-right">
+                            <input type="text" class="form-control" id="account-number" >
+                            <em id="error-account-number" class="error text-danger"></em>
+                        </div>
+
+                        <label for="deposit-amount" class="col-sm-2 col-form-label" >Amount </label>
+                        <div class="col-sm-10 text-right">
+                            <input type="number" class="form-control" id="deposit-amount"  disabled >
+                            <em id="error-deposit-amount" class="error text-danger"></em>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <button class="btn btn-primary" id="btn-deposit"  disabled="true">withdraw</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-4">
+                <!-- load account details here -->
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="card" style="width: 28rem; display: none;" id="account-details">
+                            <div class="card-body">
+                                <h3 class="card-title">Account details</h3>
+                                <p class="card-text" id="account-no-detail"></p>
+                                <p class="card-text" id="name-detail"></p>
+                                <p class="card-text" id="address-detail"></p>
+                                <p class="card-text" id="balance-detail"></p>
+                                <p class="card-text" id="email-detail"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+<script>
+    $( document ).ready(function() {
+        console.log( "ready!" );
+        var withdrawbalace=0;
+    });
+    $("#account-number").focusout(function() {
+        console.log("account number focus out")
+        var accountNumber = $("#account-number").val();
+        console.log(accountNumber);
+
+        // Make a request for a user with a given ID
+        axios.get('http://localhost:8080/search-user?account-number=' + accountNumber)
+            .then(function (response) {
+                // handle success
+                var applicationMessage = response.data;
+                console.log(applicationMessage);
+                // console.log(applicationMessage.success);
+                if(applicationMessage.success){
+                    $("#deposit-amount").prop("disabled",false);
+                    $("#btn-deposit").prop("disabled",false);
+                    withdrawbalance=applicationMessage.body.balance;
+                    //showing account details
+                    $("#account-details").css("display","block");
+                    $("#account-no-detail").html('Account Number:'+applicationMessage.body.accountNumber);
+                    $("#name-detail").html('name:'+applicationMessage.body.name);
+                    $("#address-detail").html('Address:'+applicationMessage.body.address);
+                    $("#balance-detail").html('balance:'+applicationMessage.body.balance);
+                    $("#email-detail").html('email:'+applicationMessage.body.email);
+
+                }else{
+                    $("#deposit-amount").prop("disabled",true);
+                    $("#btn-deposit").prop("disabled",true);
+                    $("#account-details").css("display","none");
+                }
+                console.log(response.data);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+//with out any amount typed in deposite amount it will not with draw with some message
+        $("#btn-deposit").click(function (event) {
+            event.preventDefault();
+            console.log("clicked");
+
+            var accountNumber = $("#account-number").val();
+            var balance = $("#deposit-amount").val();
+            //check balance
+            if(balance==='' || balance==null || balance===undefined ){
+                $("#error-deposit-amount").html('please enter vaild amount ');
+                return;
+            }else if(withdrawbalance<balance){
+               alert("your balance is low ");
+                return;
+            }
+            $("#error-deposit-amount").css('display','none');
+
+            // call api to post the data
+            axios.post('http://localhost:8080/withdraw', {
+                accountNumber: accountNumber,
+                balance: balance
+            })
+                .then(function (response) {
+                    var applicationMessage=response.data;
+                    console.log(applicationMessage);
+                    if(applicationMessage.success){
+                        $("#balance-detail").html('balance:'+applicationMessage.body.balance);
+                        $('#deposit-amount').val("");
+                    }else{
+                        alert("not updated");
+                    }
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        });
+    })
+
+
+
+</script>
+</body>
+</html>
