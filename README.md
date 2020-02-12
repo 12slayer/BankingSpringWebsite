@@ -1,1 +1,1 @@
-# BankingSpringWebsite
+# BankingSpringWebsite it is a banking simple where user can register and they will be registerd by random account number.we can add deposite , withdraw and transfer there is no login in this project next project spring security is done. 
